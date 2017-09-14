@@ -10,7 +10,7 @@ namespace gdwg {
 	template <typename N, typename E> class Graph {
 	
 	public:
-		Graph() {}; //defaust constructor
+		Graph() {}; //default constructor
 		
 		Graph(const Graph &);	//copy constructor
 		Graph(Graph &&);		//move constructor
@@ -39,6 +39,8 @@ namespace gdwg {
 			bool isConnected(const Node& dst) const;
 			void printNode() const;
 			const N& getNode() const { return *nodePtr; }
+			void printEdges() const;
+			void replace(const N& newData);
 			std::shared_ptr<N> getPtr() const;
 
 		private:
@@ -47,6 +49,7 @@ namespace gdwg {
 				Edge(const Node& n, const E& e) : weight{std::make_shared<E>(e)} {destNode = n.getPtr();};
 				const E& getWeight() const { return *weight; }
 				N& getDest() const;
+				void printEdge() const;
 				std::shared_ptr<N> getDestPtr() const;
 			private:
 				std::shared_ptr<E> weight;	
@@ -57,6 +60,8 @@ namespace gdwg {
 			std::vector<Edge> edges;
 
 		};
+		auto findNode(const N& node) const; 
+		auto findNode(const N& node);
 		std::vector<Node> nodes;
 	};
 

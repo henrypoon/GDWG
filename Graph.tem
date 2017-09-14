@@ -7,6 +7,21 @@ template <typename N, typename E> bool Graph<N,E>::addNode(const N& node) {
 	return true;
 }
 
+template <typename N, typename E> auto Graph<N,E>::findNode(const N& node) const {
+	auto result = std::find_if(nodes.begin(), nodes.end(), [&node] (const Node& n) {
+		return node == n.getNode();
+	});
+	return result;
+}
+
+template <typename N, typename E> auto Graph<N,E>::findNode(const N& node)  {
+	auto result = std::find_if(nodes.begin(), nodes.end(), [&node] (const Node& n) {
+		return node == n.getNode();
+	});
+	return result;
+}
+
+
 // add edge between two nodes
 template <typename N, typename E> bool Graph<N,E>::addEdge(const N& src, const N& dst, const E& w) {
 	if (!isNode(src)) {
@@ -15,15 +30,10 @@ template <typename N, typename E> bool Graph<N,E>::addEdge(const N& src, const N
 	if (!isNode(dst)) {
 		throw std::runtime_error("Can't find destination node");
 	}
-	auto from = std::find_if(nodes.begin(), nodes.end(), [&src] (const Node& n) {
-		return src == n.getNode();
-	});
-	auto to = std::find_if(nodes.begin(), nodes.end(), [&dst] (const Node& n) {
-		return dst == n.getNode();
-	});
+	auto from = findNode(src);
+	auto to = findNode(dst);
 
 	if (from->isExisted(dst, w)) {
-		std::cout << "Existed" << std::endl;
 		return false;
 	}
 	from->addEdge(*to, w);
@@ -37,6 +47,24 @@ template <typename N, typename E> bool Graph<N,E>::Node::addEdge(const Node& dst
 	return true;
 }
 
+// replace
+template <typename N, typename E> bool Graph<N,E>::replace(const N& oldData, const N& newData) {
+	if (!isNode(oldData)) {
+		throw std::runtime_error("Can't find oldData");
+	}
+	if (isNode(newData)) {
+		return false;
+	}
+	auto old = findNode(oldData);
+	old->replace(newData);
+	return true;
+}
+
+template <typename N, typename E> void Graph<N,E>::Node::replace(const N& newData) {
+	auto n = getNode();
+	n = newData;
+}
+
 // check whether there's a edge from src to dst
 template <typename N, typename E> bool Graph<N,E>::isConnected(const N& src, const N& dst) const {
 	if (!isNode(src)) {
@@ -45,9 +73,7 @@ template <typename N, typename E> bool Graph<N,E>::isConnected(const N& src, con
 	if (!isNode(dst)) {
 		throw std::runtime_error("Can't find destination node");
 	}
-	auto from = std::find_if(nodes.begin(), nodes.end(), [&src] (const Node& n) {
-		return src == n.getNode();
-	});
+	auto from = findNode(src);
 
 	if (from->isConnected(dst)) return true;
 	return false;
@@ -74,9 +100,7 @@ template <typename N, typename E> bool Graph<N,E>::Node::isConnected(const Node&
 
 
 template <typename N, typename E> bool Graph<N,E>::isNode(const N& val) const {
-	auto target = std::find_if(nodes.begin(), nodes.end(), [&val] (const Node& n) {
-		return val == n.getNode();
-	});
+	auto target = findNode(val);
 	if (target == nodes.end()) return false;
 	return true;
 }
@@ -88,9 +112,36 @@ template <typename N, typename E> void Graph<N,E>::printNodes() const {
 	}
 }
 
+// print all edges of a node
+template <typename N, typename E> void Graph<N,E>::printEdges(const N& val) const {
+	if (!isNode(val)) {
+		throw std::runtime_error("Can't find the node");
+	}
+	std::cout << "Edges attached to Node " << val << "\n";
+	auto node = findNode(val);
+	node->printEdges();
+}
+
+// print all edges of this node
+template <typename N, typename E> void Graph<N,E>::Node::printEdges() const {
+	if (edges.size() == 0) {
+		std::cout << "(null)" << std::endl;
+	} else {
+		for (auto e: edges) {
+			e.printEdge();
+		}
+	}
+}
+
 // method to print a node
 template <typename N, typename E> void Graph<N,E>::Node::printNode() const {
 	std::cout << *(nodePtr) << std::endl;
+}
+
+
+// method to print a edge
+template <typename N, typename E> void Graph<N,E>::Node::Edge::printEdge() const {
+	std::cout << getDest() << " " << getWeight() << std::endl;
 }
 
 // get pointer of a node
