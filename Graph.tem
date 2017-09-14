@@ -1,0 +1,44 @@
+
+
+template <typename N, typename E> bool Graph<N,E>::addNode(const N& node) {
+	if (isNode(node)) return false;
+	nodes.push_back(Node(node));
+	// std::cout << node << std::endl;
+	return true;
+}
+
+template <typename N, typename E> bool Graph<N,E>::addEdge(const N& src, const N& dst, const E& w) {
+	if (!isNode(src)) {
+		throw std::runtime_error("Can't find source node");
+	}
+	if (!isNode(dst)) {
+		throw std::runtime_error("Can't find destination node");
+	}
+	auto from = std::find_if(nodes.begin(), nodes.end(), [&src] (const Node& n) {
+		return src == n.getNode();
+	});
+	auto to = std::find_if(nodes.begin(), nodes.end(), [&dst] (const Node& n) {
+		return dst == n.getNode();
+	});
+}
+
+
+template <typename N, typename E> bool Graph<N,E>::isNode(const N& val) const {
+	auto target = std::find_if(nodes.begin(), nodes.end(), [&val] (const Node& n) {
+		return val == n.getNode();
+	});
+	if (target == nodes.end()) return false;
+	return true;
+}
+
+// method to print all nodes
+template <typename N, typename E> void Graph<N,E>::printNodes() const {
+	for (auto n: nodes) {
+		n.printNode();
+	}
+}
+
+// method to print a node
+template <typename N, typename E> void Graph<N,E>::Node::printNode() const {
+	std::cout << *(nodePtr) << std::endl;
+}
