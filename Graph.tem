@@ -7,6 +7,7 @@ template <typename N, typename E> bool Graph<N,E>::addNode(const N& node) {
 	return true;
 }
 
+// add edge between two nodes
 template <typename N, typename E> bool Graph<N,E>::addEdge(const N& src, const N& dst, const E& w) {
 	if (!isNode(src)) {
 		throw std::runtime_error("Can't find source node");
@@ -20,6 +21,55 @@ template <typename N, typename E> bool Graph<N,E>::addEdge(const N& src, const N
 	auto to = std::find_if(nodes.begin(), nodes.end(), [&dst] (const Node& n) {
 		return dst == n.getNode();
 	});
+
+	if (from->isExisted(dst, w)) {
+		std::cout << "Existed" << std::endl;
+		return false;
+	}
+	from->addEdge(*to, w);
+	return true;
+}
+
+// add edge to a node
+template <typename N, typename E> bool Graph<N,E>::Node::addEdge(const Node& dst, const E& w) {
+	Edge e{dst, w};
+	edges.push_back(e);
+	return true;
+}
+
+// check whether there's a edge from src to dst
+template <typename N, typename E> bool Graph<N,E>::isConnected(const N& src, const N& dst) const {
+	if (!isNode(src)) {
+		throw std::runtime_error("Can't find source node");
+	}
+	if (!isNode(dst)) {
+		throw std::runtime_error("Can't find destination node");
+	}
+	auto from = std::find_if(nodes.begin(), nodes.end(), [&src] (const Node& n) {
+		return src == n.getNode();
+	});
+
+	if (from->isConnected(dst)) return true;
+	return false;
+}
+
+
+// check whether a edge with weight and destination already connected to a node
+template <typename N, typename E> bool Graph<N,E>::Node::isExisted(const Node& dst, const E& w) const {
+	auto checkedW = std::find_if(edges.begin(), edges.end(), [&dst, &w] (const Edge& e) {
+		return w == e.getWeight() && dst.getNode() == e.getDest();
+	});
+	if (checkedW == edges.end()) return false;
+	return true;
+}
+
+// check whether a edge with destination already connected to a node
+template <typename N, typename E> bool Graph<N,E>::Node::isConnected(const Node& dst) const {
+	auto checkedW = std::find_if(edges.begin(), edges.end(), [&dst] (const Edge& e) {
+		return dst.getNode() == e.getDest();
+	});
+	if (checkedW == edges.end()) return false;
+	return true;
 }
 
 
@@ -41,4 +91,21 @@ template <typename N, typename E> void Graph<N,E>::printNodes() const {
 // method to print a node
 template <typename N, typename E> void Graph<N,E>::Node::printNode() const {
 	std::cout << *(nodePtr) << std::endl;
+}
+
+// get pointer of a node
+template <typename N, typename E> std::shared_ptr<N> Graph<N,E>::Node::getPtr() const {
+	return nodePtr;	
+}
+
+// get destination of edge
+template <typename N, typename E> N& Graph<N,E>::Node::Edge::getDest() const {
+	auto dest = destNode.lock();
+	return *dest;
+}
+
+// get pointer of destination in a edge 
+template <typename N, typename E> std::shared_ptr<N> Graph<N,E>::Node::Edge::getDestPtr() const {
+	auto dest = destNode.lock();
+	return dest;
 }

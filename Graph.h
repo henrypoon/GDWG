@@ -9,9 +9,6 @@ namespace gdwg {
 	
 	template <typename N, typename E> class Graph {
 	
-	class Node;
-	class Edge;
-
 	public:
 		Graph() {}; //defaust constructor
 		
@@ -35,23 +32,29 @@ namespace gdwg {
 
 	private:
 		class Node {
-			class Edge;
 		public:
 			Node(const N& n) : nodePtr{std::make_shared<N>(n)} {};
+			bool addEdge(const Node& dst, const E& w);
+			bool isExisted(const Node& dest, const E& w) const;
+			bool isConnected(const Node& dst) const;
 			void printNode() const;
 			const N& getNode() const { return *nodePtr; }
+			std::shared_ptr<N> getPtr() const;
+
 		private:
 			class Edge {
 			public:
-				Edge(const Node& n, const E& e);
-
+				Edge(const Node& n, const E& e) : weight{std::make_shared<E>(e)} {destNode = n.getPtr();};
+				const E& getWeight() const { return *weight; }
+				N& getDest() const;
+				std::shared_ptr<N> getDestPtr() const;
 			private:
 				std::shared_ptr<E> weight;	
 				std::weak_ptr<N> destNode;
 			};
 
-			std::vector<Edge> edges;
 			std::shared_ptr<N> nodePtr;
+			std::vector<Edge> edges;
 
 		};
 		std::vector<Node> nodes;
