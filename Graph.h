@@ -39,7 +39,10 @@ namespace gdwg {
 			bool isConnected(const Node& dst) const;
 			void printNode() const;
 			const N& getNode() const { return *nodePtr; }
+			const std::shared_ptr<N> getNodePtr() const { return nodePtr; }
 			void printEdges() const;
+			void mergeIn(const N& oldData, const Node& newData, std::shared_ptr<N> sp);
+			void mergeOut(const N& oldData, const N& newData) const;
 			void replace(const N& newData);
 			std::shared_ptr<N> getPtr() const;
 
@@ -48,6 +51,7 @@ namespace gdwg {
 			public:
 				Edge(const Node& n, const E& e) : weight{std::make_shared<E>(e)} {destNode = n.getPtr();};
 				const E& getWeight() const { return *weight; }
+				void changeDest(std::shared_ptr<N> sp);
 				N& getDest() const;
 				void printEdge() const;
 				std::shared_ptr<N> getDestPtr() const;
@@ -57,12 +61,12 @@ namespace gdwg {
 			};
 
 			std::shared_ptr<N> nodePtr;
-			std::vector<Edge> edges;
+			std::vector<std::shared_ptr<Edge>> edges;
 
 		};
 		auto findNode(const N& node) const; 
 		auto findNode(const N& node);
-		std::vector<Node> nodes;
+		std::vector<std::shared_ptr<Node>> nodes;
 	};
 
     #include "Graph.tem"

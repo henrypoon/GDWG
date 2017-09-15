@@ -25,7 +25,7 @@ int main() {
 	gCopy.replace("a","e");
 	std::cout << "Graph after node replacement" << std::endl;
 	gCopy.printNodes();
-	
+
 	std::cout << "trying to replace node with an existing node" << std::endl;
 	std::cout << std::boolalpha << gCopy.replace("b","c") << std::endl;
 	
