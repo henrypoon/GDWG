@@ -42,7 +42,7 @@ namespace gdwg {
 			const std::shared_ptr<N> getNodePtr() const { return nodePtr; }
 			void printEdges() const;
 			void mergeIn(const N& oldData, const Node& newData, std::shared_ptr<N> sp);
-			void mergeOut(const N& oldData, const N& newData) const;
+			void mergeOut(std::shared_ptr<N> sp);
 			void replace(const N& newData);
 			std::shared_ptr<N> getPtr() const;
 

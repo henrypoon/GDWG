@@ -75,33 +75,26 @@ template <typename N, typename E> void Graph<N,E>::mergeReplace(const N& oldData
 
 	// old->replace(newData);
 	for (auto n: nodes) {
-		// n.printNode();
-		if (n.getNode() != oldData) {
-			// n.replace(newData);
-			// std::cout << "temo" << std::endl;
-		// } else {
-			// n.printEdges();
-			n.mergeIn(oldData, *newD, newD->getNodePtr());
-			// n.printEdges();
+		n->printNode();
+		if (n->getNode() == oldData) {
+			n->mergeOut((*newD)->getNodePtr());
+		} else {
+			n->mergeIn(oldData, **newD, (*newD)->getNodePtr());
 			break;
 		}
 	}
 	// printEdges(1);
 }
 
-template <typename N, typename E> void Graph<N,E>::Node::mergeOut(const N& oldData, const N& newData) const{
-
+template <typename N, typename E> void Graph<N,E>::Node::mergeOut(std::shared_ptr<N> sp) {
+	nodePtr = sp;
 }
 
 template <typename N, typename E> void Graph<N,E>::Node::mergeIn(const N& oldData, const Node& newData, std::shared_ptr<N> sp) {
-	// for (Edge e: edges) {
-	for (int i =0; i < edges.size(); ++i) {	
-		if (edges[i].getDest() == oldData) {
-			if (!isExisted(newData, edges[i].getWeight())) {
-				// e.printEdge();
-				edges[i].changeDest(sp);
-				edges[i].printEdge();
-				edges[0].printEdge();
+	for (auto e: edges) {
+		if (e->getDest() == oldData) {
+			if (!isExisted(newData, e->getWeight())) {
+				e->changeDest(sp);
 			}
 		}
 	}
@@ -112,7 +105,7 @@ template <typename N, typename E> void Graph<N,E>::Node::mergeIn(const N& oldDat
 
 template <typename N, typename E> void Graph<N,E>::Node::Edge::changeDest(std::shared_ptr<N> sp) {
 	destNode = sp;
-	std::cout << "change to " << getDest() << std::endl;
+	// std::cout << "change to " << getDest() << std::endl;
 
 }
 
