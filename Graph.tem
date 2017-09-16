@@ -12,13 +12,45 @@ template <typename N, typename E> auto Graph<N,E>::findNode(const N& node) const
 	return result;
 }
 
-template <typename N, typename E> auto Graph<N,E>::findNode(const N& node)  {
+template <typename N, typename E> auto Graph<N,E>::findNode(const N& node) {
 	auto result = std::find_if(nodes.begin(), nodes.end(), [&node] (const std::shared_ptr<Node>& n) {
 		return node == n->getNode();
 	});
 	return result;
 }
 
+
+// copy constructor
+template <typename N, typename E> Graph<N, E>::Graph(const Graph &g) {
+	for (auto n: g.nodes) {
+		nodes.push_back(n);
+	}
+	std::cout << "fuck" << std::endl;
+}
+
+// move constructor
+template <typename N, typename E> Graph<N, E>::Graph(Graph &&g) {
+	for (auto n: g.nodes) {
+		nodes.push_back(n);
+	}
+	g.nodes = nullptr;
+}
+
+// copy assignment
+template <typename N, typename E> Graph<N,E>& Graph<N, E>::operator=(const Graph &g) {
+	for (auto n: g.nodes) {
+		nodes.push_back(n);
+	}
+	return *this;
+}
+
+// move assignment
+template <typename N, typename E> Graph<N,E>& Graph<N, E>::operator=(Graph &&g) {
+	for (auto n: g.nodes) {
+		nodes.push_back(n);
+	}
+	return *this;
+}
 
 // add edge between two nodes
 template <typename N, typename E> bool Graph<N,E>::addEdge(const N& src, const N& dst, const E& w) {
@@ -44,6 +76,11 @@ template <typename N, typename E> bool Graph<N,E>::Node::addEdge(const Node& dst
 	return true;
 }
 
+// add edge to a node
+template <typename N, typename E> void Graph<N,E>::Node::addEdge(const std::shared_ptr<Edge>& sp) {
+	edges.push_back(sp);
+}
+
 // replace
 template <typename N, typename E> bool Graph<N,E>::replace(const N& oldData, const N& newData) {
 	if (!isNode(oldData)) {
@@ -57,48 +94,94 @@ template <typename N, typename E> bool Graph<N,E>::replace(const N& oldData, con
 	return true;
 }
 
+// replace current node with new value 
 template <typename N, typename E> void Graph<N,E>::Node::replace(const N& newData) {
 	*nodePtr = newData;
 }
 
+// mergeReplace
 template <typename N, typename E> void Graph<N,E>::mergeReplace(const N& oldData, const N& newData) {
 	if (!isNode(oldData)) {
 		throw std::runtime_error("Can't find oldData");
 	}
-	// std::cout << newData <<std::endl;
 	if (!isNode(newData)) {
 		throw std::runtime_error("Can't find newData");
 	}
-	// printEdges(1);
 	auto newD = findNode(newData);
-	// auto old = findNode(oldData);
 
-	// old->replace(newData);
-	for (auto n: nodes) {
-		n->printNode();
-		if (n->getNode() == oldData) {
-			n->mergeOut((*newD)->getNodePtr());
-		} else {
-			n->mergeIn(oldData, **newD, (*newD)->getNodePtr());
-			break;
+	///////////////////////////////// CHANG INCOMING EDGE ////////////////////////////
+	for (unsigned int i=0; i<nodes.size(); ++i) {
+		if (nodes[i]->getNode() != oldData) {
+			nodes[i]->mergeIn(oldData, **newD, (*newD)->getNodePtr());
+		} 
+	}
+	///////////////////////////////// CHANG OUTGOING EDGE ////////////////////////////
+	for (unsigned int i=0; i<nodes.size(); ++i) {
+		if (nodes[i]->getNode() == oldData) {
+			nodes[i]->mergeOut((**newD));
 		}
 	}
-	// printEdges(1);
+	////////////////////////////////// DELETE OLD ////////////////////////////////
+	deleteNode(oldData);
 }
 
-template <typename N, typename E> void Graph<N,E>::Node::mergeOut(std::shared_ptr<N> sp) {
-	nodePtr = sp;
+template <typename N, typename E> void Graph<N,E>::clear() noexcept {
+	nodes.clear();
+}
+
+
+template <typename N, typename E> void Graph<N,E>::deleteNode(const N& node) noexcept {
+	if (!isNode(node)) {
+		return;
+	}
+	auto dn = findNode(node);
+	dn->reset();
+	nodes.erase(dn);
+}
+
+template <typename N, typename E> void Graph<N,E>::deleteEdge(const N& src, const N& dst, const E& w) noexcept {
+	if (!isNode(src)) {
+		return;
+	}
+	if (!isNode(dst)) {
+		return;
+	}
+	auto n = findNode(src);
+	(*n)->deleteEdge(dst, w);
+}
+
+template <typename N, typename E> void Graph<N,E>::Node::deleteEdge(const Node& dst, const E& w) {
+	auto checkedW = std::find_if(edges.begin(), edges.end(), [&dst, &w] (const std::shared_ptr<Edge>& e) {
+		return w == e->getWeight() && dst.getNode() == e->getDest();
+	});
+	if (checkedW != edges.end()) {
+		checkedW->reset();
+		edges.erase(checkedW);
+	}
+}
+
+
+
+
+
+template <typename N, typename E> void Graph<N,E>::Node::mergeOut(Node& newData) {
+	for (auto e: edges) {
+		if (!(newData.isExisted(e->getDest(), e->getWeight()))) {
+			newData.addEdge(e);
+		}
+	}
 }
 
 template <typename N, typename E> void Graph<N,E>::Node::mergeIn(const N& oldData, const Node& newData, std::shared_ptr<N> sp) {
-	for (auto e: edges) {
-		if (e->getDest() == oldData) {
-			if (!isExisted(newData, e->getWeight())) {
-				e->changeDest(sp);
+	if (edges.size() != 0) {
+		for (auto e: edges) {
+			if (e->getDest() == oldData) {
+				if (!isExisted(newData, e->getWeight())) {
+					e->changeDest(sp);
+				}
 			}
 		}
 	}
-	// printEdges();
 }
 
 
@@ -197,6 +280,9 @@ template <typename N, typename E> std::shared_ptr<N> Graph<N,E>::Node::getPtr() 
 // get destination of edge
 template <typename N, typename E> N& Graph<N,E>::Node::Edge::getDest() const {
 	auto dest = destNode.lock();
+	if (dest == NULL) {
+		std::cout << "fuck" << std::endl;
+	}
 	return *dest;
 }
 
