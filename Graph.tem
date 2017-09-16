@@ -22,9 +22,10 @@ template <typename N, typename E> auto Graph<N,E>::findNode(const N& node) {
 
 // copy constructor
 template <typename N, typename E> Graph<N, E>::Graph(const Graph &g) {
-	for (auto n: g.nodes) {
-		nodes.push_back(n);
-	}
+	// for (auto n: g.nodes) {
+	// 	nodes.push_back(n);
+	// }
+	nodes{g.nodes};
 	std::cout << "fuck" << std::endl;
 }
 
