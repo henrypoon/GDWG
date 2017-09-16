@@ -4,12 +4,15 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <cassert>
+#include <list>
 
 namespace gdwg {
-	
+
 	template <typename N, typename E> class Graph {
-	class Edge;
-	class Node;
+		class Edge;
+		class Node; 	
 	public:
 		Graph() {}; //default constructor
 		
@@ -30,10 +33,14 @@ namespace gdwg {
 		bool isConnected(const N& src, const N& dst) const;
 		void printNodes() const;
 		void printEdges(const N& val) const;
+		void begin() const { it = nodes.begin(); };
+		bool end() const { return it == nodes.end(); };
+		void next() const { ++it; };
+		const N& value() const { return (*it)->getNode(); }
+
 
 	private:
 		class Node {
-			class Edge;
 		public:
 			Node(const N& n) : nodePtr{std::make_shared<N>(n)} {};
 			bool addEdge(const Node& dst, const E& w);
@@ -49,11 +56,18 @@ namespace gdwg {
 			void mergeOut(Node& newData);
 			void replace(const N& newData);
 			const std::vector<std::shared_ptr<Edge>> getEdges() const { return edges; };
+			std::vector<std::shared_ptr<Edge>>& getEdges() { return edges; };
 			unsigned int getNumOfEdges () const { return edges.size(); };
 			std::shared_ptr<N> getPtr() const;
 
 		private:
-			class Edge {
+
+			std::shared_ptr<N> nodePtr;
+			std::vector<std::shared_ptr<Edge>> edges;
+
+		};
+
+		class Edge {
 			public:
 				Edge(const Node& n, const E& e) : weight{std::make_shared<E>(e)} {destNode = n.getPtr();};
 				const E& getWeight() const { return *weight; }
@@ -65,15 +79,13 @@ namespace gdwg {
 			private:
 				std::shared_ptr<E> weight;	
 				std::weak_ptr<N> destNode;
-			};
-
-			std::shared_ptr<N> nodePtr;
-			std::vector<std::shared_ptr<Edge>> edges;
-
 		};
+
 		auto findNode(const N& node) const; 
 		auto findNode(const N& node);
+		void update();
 		std::vector<std::shared_ptr<Node>> nodes;
+		mutable typename std::vector<std::shared_ptr<Node>>::const_iterator it = nodes.begin();
 	};
 
     #include "Graph.tem"

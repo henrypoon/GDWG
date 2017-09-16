@@ -16,21 +16,20 @@ int main() {
 	gHeap->addEdge("b","d",4);
 	gHeap->addEdge("c","a",3);
 	
-	// std::cout << "original graph" << std::endl;
-	// gHeap->printNodes();
-	
-	// gHeap->printEdges("b");
+	std::cout << "original graph" << std::endl;
+	gHeap->printNodes();
+	gHeap->printEdges("b");
 	
 	auto gHeapCopy = *gHeap;
 	gHeap->deleteNode("a");
-	// std::cout << "original graph after delete" << std::endl;
+	std::cout << "original graph after delete" << std::endl;
 	gHeap->printNodes();
 	gHeap->printEdges("b");
-	// std::cout << "copied graph after delete in other graph" << std::endl;
-	// gHeapCopy.printNodes();
-	// gHeapCopy.printEdges("b");
+	std::cout << "copied graph after delete in other graph" << std::endl;
+	gHeapCopy.printNodes();
+	gHeapCopy.printEdges("b");
 	
-	// delete gHeap;
-	// std::cout << "copied graph after other graph is deleted" << std::endl;
-	// gHeapCopy.printNodes();
+	delete gHeap;
+	std::cout << "copied graph after other graph is deleted" << std::endl;
+	gHeapCopy.printNodes();
 }

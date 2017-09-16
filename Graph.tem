@@ -1,3 +1,5 @@
+
+
 template <typename N, typename E> bool Graph<N,E>::addNode(const N& node) {
 	if (isNode(node)) return false;
 	nodes.push_back(std::make_shared<Node>(Node{node}));
@@ -22,33 +24,63 @@ template <typename N, typename E> auto Graph<N,E>::findNode(const N& node) {
 
 // copy constructor
 template <typename N, typename E> Graph<N, E>::Graph(const Graph &g) {
-	// for (auto n: g.nodes) {
-	// 	nodes.push_back(n);
-	// }
-	nodes{g.nodes};
-	std::cout << "fuck" << std::endl;
+	for (auto n: g.nodes) {
+		addNode(n->getNode());
+	}
+
+	for (auto n: g.nodes) {
+		for (auto e: n->getEdges()) {
+			addEdge(n->getNode(), e->getDest(), e->getWeight());
+		}
+	}
 }
 
 // move constructor
 template <typename N, typename E> Graph<N, E>::Graph(Graph &&g) {
 	for (auto n: g.nodes) {
-		nodes.push_back(n);
+		addNode(n->getNode());
 	}
-	g.nodes = nullptr;
+
+	for (auto n: g.nodes) {
+		for (auto e: n->getEdges()) {
+			addEdge(n->getNode(), e->getDest(), e->getWeight());
+		}
+	}
+	g.clear();
 }
 
 // copy assignment
 template <typename N, typename E> Graph<N,E>& Graph<N, E>::operator=(const Graph &g) {
-	for (auto n: g.nodes) {
-		nodes.push_back(n);
+	if (this != &g) {
+		// delete[] nodes;
+		clear();
+		for (auto n: g.nodes) {
+			addNode(n->getNode());
+		}
+
+		for (auto n: g.nodes) {
+			for (auto e: n->getEdges()) {
+				addEdge(n->getNode(), e->getDest(), e->getWeight());
+			}
+		}
 	}
 	return *this;
 }
 
 // move assignment
 template <typename N, typename E> Graph<N,E>& Graph<N, E>::operator=(Graph &&g) {
-	for (auto n: g.nodes) {
-		nodes.push_back(n);
+	if (this != &g) {
+		clear();
+		for (auto n: g.nodes) {
+			addNode(n->getNode());
+		}
+
+		for (auto n: g.nodes) {
+			for (auto e: n->getEdges()) {
+				addEdge(n->getNode(), e->getDest(), e->getWeight());
+			}
+		}
+		g.clear();
 	}
 	return *this;
 }
@@ -124,12 +156,21 @@ template <typename N, typename E> void Graph<N,E>::mergeReplace(const N& oldData
 	}
 	////////////////////////////////// DELETE OLD ////////////////////////////////
 	deleteNode(oldData);
+
 }
 
 template <typename N, typename E> void Graph<N,E>::clear() noexcept {
 	nodes.clear();
 }
 
+template <typename N, typename E> void Graph<N,E>::update() {
+	for (auto n: nodes) {
+		auto& es = n->getEdges();
+		es.erase(std::remove_if(es.begin(), es.end(), [](const std::shared_ptr<Edge>& e) {
+			return e->getDestPtr() == NULL;
+		}), es.end());
+	}
+}
 
 template <typename N, typename E> void Graph<N,E>::deleteNode(const N& node) noexcept {
 	if (!isNode(node)) {
@@ -138,6 +179,7 @@ template <typename N, typename E> void Graph<N,E>::deleteNode(const N& node) noe
 	auto dn = findNode(node);
 	dn->reset();
 	nodes.erase(dn);
+	update();
 }
 
 template <typename N, typename E> void Graph<N,E>::deleteEdge(const N& src, const N& dst, const E& w) noexcept {
@@ -187,7 +229,7 @@ template <typename N, typename E> void Graph<N,E>::Node::mergeIn(const N& oldDat
 
 
 
-template <typename N, typename E> void Graph<N,E>::Node::Edge::changeDest(std::shared_ptr<N> sp) {
+template <typename N, typename E> void Graph<N,E>::Edge::changeDest(std::shared_ptr<N> sp) {
 	destNode = sp;
 	// std::cout << "change to " << getDest() << std::endl;
 
@@ -269,7 +311,7 @@ template <typename N, typename E> void Graph<N,E>::Node::printNode() const {
 
 
 // method to print a edge
-template <typename N, typename E> void Graph<N,E>::Node::Edge::printEdge() const {
+template <typename N, typename E> void Graph<N,E>::Edge::printEdge() const {
 	std::cout << getDest() << " " << getWeight() << std::endl;
 }
 
@@ -279,16 +321,12 @@ template <typename N, typename E> std::shared_ptr<N> Graph<N,E>::Node::getPtr() 
 }
 
 // get destination of edge
-template <typename N, typename E> N& Graph<N,E>::Node::Edge::getDest() const {
+template <typename N, typename E> N& Graph<N,E>::Edge::getDest() const {
 	auto dest = destNode.lock();
-	if (dest == NULL) {
-		std::cout << "fuck" << std::endl;
-	}
 	return *dest;
 }
 
 // get pointer of destination in a edge 
-template <typename N, typename E> std::shared_ptr<N> Graph<N,E>::Node::Edge::getDestPtr() const {
-	auto dest = destNode.lock();
-	return dest;
+template <typename N, typename E> std::shared_ptr<N> Graph<N,E>::Edge::getDestPtr() const {
+	return destNode.lock();
 }
