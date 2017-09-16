@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iterator>
 #include <cassert>
+#include <stdexcept>
 #include <list>
 
 namespace gdwg {
@@ -55,9 +56,10 @@ namespace gdwg {
 			void mergeIn(const N& oldData, const Node& newData, std::shared_ptr<N> sp);
 			void mergeOut(Node& newData);
 			void replace(const N& newData);
+			bool operator<(const Node& n) const { return n.getNode() > getNode(); };
 			const std::vector<std::shared_ptr<Edge>> getEdges() const { return edges; };
 			std::vector<std::shared_ptr<Edge>>& getEdges() { return edges; };
-			unsigned int getNumOfEdges () const { return edges.size(); };
+			const int getNumOfEdges () const { return edges.size(); };
 			std::shared_ptr<N> getPtr() const;
 
 		private:
@@ -74,6 +76,7 @@ namespace gdwg {
 				const std::shared_ptr<E> getWeightPtr() const { return weight; }
 				void changeDest(std::shared_ptr<N> sp);
 				N& getDest() const;
+				bool operator<(const Edge& e) const { return e.getDest() > getDest(); };
 				void printEdge() const;
 				std::shared_ptr<N> getDestPtr() const;
 			private:

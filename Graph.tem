@@ -52,7 +52,6 @@ template <typename N, typename E> Graph<N, E>::Graph(Graph &&g) {
 // copy assignment
 template <typename N, typename E> Graph<N,E>& Graph<N, E>::operator=(const Graph &g) {
 	if (this != &g) {
-		// delete[] nodes;
 		clear();
 		for (auto n: g.nodes) {
 			addNode(n->getNode());
@@ -278,7 +277,23 @@ template <typename N, typename E> bool Graph<N,E>::isNode(const N& val) const {
 
 // method to print all nodes
 template <typename N, typename E> void Graph<N,E>::printNodes() const {
-	for (auto n: nodes) {
+	std::vector<std::shared_ptr<Node>> temp = nodes;
+
+	std::sort(temp.begin(), temp.end(), [](const std::shared_ptr<Node>& a, const std::shared_ptr<Node>& b) {
+		if (a->getNumOfEdges() < b->getNumOfEdges()) {
+			return true;
+		} else if (a->getNumOfEdges() == b->getNumOfEdges()) {
+			if ((*a) < (*b)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	});
+
+	for (auto n: temp) {
 		n->printNode();
 	}
 }
@@ -298,7 +313,23 @@ template <typename N, typename E> void Graph<N,E>::Node::printEdges() const {
 	if (edges.size() == 0) {
 		std::cout << "(null)" << std::endl;
 	} else {
-		for (auto e: edges) {
+
+		std::vector<std::shared_ptr<Edge>> temp = edges;
+		std::sort(temp.begin(), temp.end(), [](const std::shared_ptr<Edge>& a, const std::shared_ptr<Edge>& b) {
+			if (b->getWeight() > a->getWeight()) {
+				return true;
+			} else if (b->getWeight() == a->getWeight()) {
+				if ((*a) < (*b)) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		});
+
+		for (auto e: temp) {
 			e->printEdge();
 		}
 	}
