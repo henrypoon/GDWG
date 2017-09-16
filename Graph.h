@@ -38,8 +38,6 @@ namespace gdwg {
 		bool end() const { return it == nodes.end(); };
 		void next() const { ++it; };
 		const N& value() const { return (*it)->getNode(); }
-
-
 	private:
 		class Node {
 		public:
@@ -61,12 +59,9 @@ namespace gdwg {
 			std::vector<std::shared_ptr<Edge>>& getEdges() { return edges; };
 			const int getNumOfEdges () const { return edges.size(); };
 			std::shared_ptr<N> getPtr() const;
-
 		private:
-
 			std::shared_ptr<N> nodePtr;
 			std::vector<std::shared_ptr<Edge>> edges;
-
 		};
 
 		class Edge {
