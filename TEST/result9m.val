@@ -1,0 +1,39 @@
+==5241== Memcheck, a memory error detector
+==5241== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5241== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5241== Command: ./result9m
+==5241== Parent PID: 5027
+==5241== 
+--5241-- run: /usr/bin/dsymutil "./result9m"
+==5241== Syscall param msg->desc.port.name points to uninitialised byte(s)
+==5241==    at 0x10049D34A: mach_msg_trap (in /usr/lib/system/libsystem_kernel.dylib)
+==5241==    by 0x10049C796: mach_msg (in /usr/lib/system/libsystem_kernel.dylib)
+==5241==    by 0x100496485: task_set_special_port (in /usr/lib/system/libsystem_kernel.dylib)
+==5241==    by 0x10063210E: _os_trace_create_debug_control_port (in /usr/lib/system/libsystem_trace.dylib)
+==5241==    by 0x100632458: _libtrace_init (in /usr/lib/system/libsystem_trace.dylib)
+==5241==    by 0x1001629DF: libSystem_initializer (in /usr/lib/libSystem.B.dylib)
+==5241==    by 0x100020A1A: ImageLoaderMachO::doModInitFunctions(ImageLoader::LinkContext const&) (in /usr/lib/dyld)
+==5241==    by 0x100020C1D: ImageLoaderMachO::doInitialization(ImageLoader::LinkContext const&) (in /usr/lib/dyld)
+==5241==    by 0x10001C4A9: ImageLoader::recursiveInitialization(ImageLoader::LinkContext const&, unsigned int, char const*, ImageLoader::InitializerTimingList&, ImageLoader::UninitedUpwards&) (in /usr/lib/dyld)
+==5241==    by 0x10001C440: ImageLoader::recursiveInitialization(ImageLoader::LinkContext const&, unsigned int, char const*, ImageLoader::InitializerTimingList&, ImageLoader::UninitedUpwards&) (in /usr/lib/dyld)
+==5241==    by 0x10001B523: ImageLoader::processInitializers(ImageLoader::LinkContext const&, unsigned int, ImageLoader::InitializerTimingList&, ImageLoader::UninitedUpwards&) (in /usr/lib/dyld)
+==5241==    by 0x10001B5B8: ImageLoader::runInitializers(ImageLoader::LinkContext const&, ImageLoader::InitializerTimingList&) (in /usr/lib/dyld)
+==5241==  Address 0x10489300c is on thread 1's stack
+==5241==  in frame #2, created by task_set_special_port (???:)
+==5241== 
+==5241== 
+==5241== HEAP SUMMARY:
+==5241==     in use at exit: 24,241 bytes in 163 blocks
+==5241==   total heap usage: 233 allocs, 70 frees, 32,801 bytes allocated
+==5241== 
+==5241== LEAK SUMMARY:
+==5241==    definitely lost: 4,096 bytes in 1 blocks
+==5241==    indirectly lost: 0 bytes in 0 blocks
+==5241==      possibly lost: 72 bytes in 3 blocks
+==5241==    still reachable: 200 bytes in 6 blocks
+==5241==         suppressed: 19,873 bytes in 153 blocks
+==5241== Rerun with --leak-check=full to see details of leaked memory
+==5241== 
+==5241== For counts of detected and suppressed errors, rerun with: -v
+==5241== Use --track-origins=yes to see where uninitialised values come from
+==5241== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 4 from 4)
